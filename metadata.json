@@ -1,0 +1,7 @@
+{
+  "name": "PUSEN - 个人数字花园",
+  "description": "一个记录生活、设计思考与代码点滴的个人空间。",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
