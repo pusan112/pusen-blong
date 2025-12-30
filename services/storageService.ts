@@ -1,102 +1,91 @@
 // services/storageService.ts
-import { supabase } from './supabaseClient'; // 引入配置好的 Supabase 客户端
+import {
+  collection,
+  addDoc,
+  getDocs,
+  getDoc,
+  doc,
+  updateDoc,
+  serverTimestamp,
+  query,
+  orderBy,
+} from "firebase/firestore";
+import { firestore } from "./firebaseClient";
+import type { Post } from "../types";
 
-// 保存新的文章
-export const savePost = async (post: any) => {
-  const { data, error } = await supabase
-    .from('posts')
-    .insert([post]);
+// Firestore 里的集合名称
+const postsCol = collection(firestore, "posts");
+const usersCol = collection(firestore, "users");
 
-  if (error) {
-    throw new Error('Failed to save post: ' + error.message);
-  }
+export const storageService = {
+  // 保存文章（写文章页用）
+  async savePost(post: Omit<Post, "id">) {
+    const docRef = await addDoc(postsCol, {
+      ...post,
+      created_at: serverTimestamp(),
+    });
+    return docRef.id;
+  },
 
-  return data;
-};
+  // 获取所有文章（首页 / Archive 用）
+  async getAllPosts(): Promise<Post[]> {
+    const q = query(postsCol, orderBy("created_at", "desc"));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => {
+      const data = d.data() as any;
+      return {
+        id: d.id,
+        title: data.title,
+        excerpt: data.excerpt,
+        content: data.content,
+        author: data.author,
+        date: data.date,
+        category: data.category,
+        tags: data.tags || [],
+        coverImage: data.coverImage,
+        readTime: data.readTime,
+      } as Post;
+    });
+  },
 
-// 获取所有文章
-export const getPosts = async () => {
-  const { data, error } = await supabase
-    .from('posts')
-    .select('*')
-    .order('created_at', { ascending: false });  // 按照创建时间倒序排序
+  // 详情页：通过 id 获取文章
+  async getPostById(id: string): Promise<Post | null> {
+    const ref = doc(firestore, "posts", id);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return null;
+    const data = snap.data() as any;
+    return {
+      id: snap.id,
+      title: data.title,
+      excerpt: data.excerpt,
+      content: data.content,
+      author: data.author,
+      date: data.date,
+      category: data.category,
+      tags: data.tags || [],
+      coverImage: data.coverImage,
+      readTime: data.readTime,
+    } as Post;
+  },
 
-  if (error) {
-    throw new Error('Failed to fetch posts: ' + error.message);
-  }
+  // 更新标签（可以以后在 Dashboard 里用）
+  async updatePostTags(postId: string, tags: string[]) {
+    const ref = doc(firestore, "posts", postId);
+    await updateDoc(ref, { tags });
+  },
 
-  return data;
-};
-
-// 获取单篇文章
-export const getPost = async (id: string) => {
-  const { data, error } = await supabase
-    .from('posts')
-    .select('*')
-    .eq('id', id)
-    .single();  // 获取单篇文章
-
-  if (error) {
-    throw new Error('Failed to fetch post: ' + error.message);
-  }
-
-  return data;
-};
-
-// 更新文章的标签
-export const updatePostTags = async (postId: string, tags: string[]) => {
-  const { data, error } = await supabase
-    .from('posts')
-    .update({ tags })  // 更新标签
-    .eq('id', postId);  // 通过文章 ID 定位
-
-  if (error) {
-    throw new Error('Failed to update post tags: ' + error.message);
-  }
-
-  return data;
-};
-
-// 更新用户活跃度
-export const updateUserActivity = async (email: string) => {
-  const { data, error } = await supabase
-    .from('users')
-    .update({ last_active: new Date() })  // 更新用户的最后活跃时间
-    .eq('email', email);  // 通过用户的邮箱定位
-
-  if (error) {
-    throw new Error('Failed to update user activity: ' + error.message);
-  }
-
-  return data;
-};
-
-// 获取用户信息
-export const getUserInfo = async (email: string) => {
-  const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('email', email)
-    .single();  // 获取单个用户的信息
-
-  if (error) {
-    throw new Error('Failed to fetch user info: ' + error.message);
-  }
-
-  return data;
-};
-
-// 获取所有文章的分页
-export const getPostsWithPagination = async (page: number, pageSize: number) => {
-  const { data, error, count } = await supabase
-    .from('posts')
-    .select('*', { count: 'exact' })
-    .range((page - 1) * pageSize, page * pageSize - 1) // 使用分页
-    .order('created_at', { ascending: false });  // 按照创建时间倒序排序
-
-  if (error) {
-    throw new Error('Failed to fetch posts with pagination: ' + error.message);
-  }
-
-  return { posts: data, total: count };
+  // 用户活跃度（你 App.tsx 里有心跳）
+  async updateUserActivity(email: string) {
+    // 简单版本：用 email 当文档 id
+    const ref = doc(usersCol, email);
+    await updateDoc(ref, {
+      last_active: serverTimestamp(),
+    }).catch(async () => {
+      // 如果用户不存在就顺便创建一下
+      await addDoc(usersCol, {
+        email,
+        last_active: serverTimestamp(),
+      });
+    });
+  },
 };
