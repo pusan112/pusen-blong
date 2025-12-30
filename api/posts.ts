@@ -1,5 +1,4 @@
 // api/posts.ts
-import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { supabase } from "../services/db";
 
 // 简单的 Post 类型（和你的 types.ts 对应起来会更好）
@@ -16,7 +15,7 @@ type Post = {
   readTime: string;
 };
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   if (req.method === "GET") {
     // 获取所有文章（你可以后面加分页）
     const { data, error } = await supabase
@@ -36,17 +35,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === "POST") {
     const body = req.body as Post;
 
-    const { data, error } = await supabase.from("posts").insert({
-      title: body.title,
-      excerpt: body.excerpt,
-      content: body.content,
-      author: body.author,
-      date: body.date,
-      category: body.category,
-      tags: body.tags,
-      cover_image: body.coverImage,
-      read_time: body.readTime,
-    }).select().single();
+    const { data, error } = await supabase
+      .from("posts")
+      .insert({
+        title: body.title,
+        excerpt: body.excerpt,
+        content: body.content,
+        author: body.author,
+        date: body.date,
+        category: body.category,
+        tags: body.tags,
+        // 这里假设你 Supabase 表里字段名是 cover_image / read_time
+        cover_image: body.coverImage,
+        read_time: body.readTime,
+      })
+      .select()
+      .single();
 
     if (error) {
       console.error("Insert post error:", error);
