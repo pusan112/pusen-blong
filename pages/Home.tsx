@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import PostCard from '../components/PostCard';
 import WeatherWidget from '../components/WeatherWidget';
 import { CATEGORIES } from '../constants';
-import { getPostsFromFirebase } from './services/firebaseService';  // 引入从 Firebase 获取数据的函数
+import { getPostsFromFirebase } from '../services/firebaseService';  // 引入从 Firebase 获取数据的函数
 
 interface HomeProps {
   isAdmin?: boolean;
