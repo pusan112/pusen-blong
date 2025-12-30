@@ -13,12 +13,27 @@ interface HomeProps {
 const Home: React.FC<HomeProps> = ({ isAdmin = false }) => {
   const [activeCategory, setActiveCategory] = useState('全部');
   const [allPosts, setAllPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // ⭐ 从云端（Supabase）拉文章列表
   useEffect(() => {
-    setAllPosts(storageService.getAllPosts(isAdmin));
+    (async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const posts = await storageService.getPosts();
+        setAllPosts(posts || []);
+      } catch (e) {
+        console.error(e);
+        setError('加载文章失败，请稍后再试。');
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [isAdmin]);
 
-  const filteredPosts = allPosts.filter(post => 
+  const filteredPosts = allPosts.filter(post =>
     activeCategory === '全部' || post.category === activeCategory
   );
 
@@ -49,8 +64,25 @@ const Home: React.FC<HomeProps> = ({ isAdmin = false }) => {
           
           <div className="pt-10 flex flex-col items-center">
             <WeatherWidget />
-            <div className="mt-12 animate-bounce cursor-pointer" onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}>
-              <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 14l-7 7-7-7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <div
+              className="mt-12 animate-bounce cursor-pointer"
+              onClick={() =>
+                window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
+              }
+            >
+              <svg
+                className="w-6 h-6 text-gray-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M19 14l-7 7-7-7"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </div>
           </div>
         </div>
@@ -61,8 +93,10 @@ const Home: React.FC<HomeProps> = ({ isAdmin = false }) => {
         {/* Categories Bar */}
         <div className="flex justify-between items-end mb-16">
           <div>
-             <h3 className="text-3xl font-serif font-black">收纳的思绪</h3>
-             <p className="text-xs text-gray-300 uppercase tracking-widest mt-1">Collections of thoughts</p>
+            <h3 className="text-3xl font-serif font-black">收纳的思绪</h3>
+            <p className="text-xs text-gray-300 uppercase tracking-widest mt-1">
+              Collections of thoughts
+            </p>
           </div>
           <div className="flex space-x-6 overflow-x-auto no-scrollbar pb-2">
             {CATEGORIES.map(cat => (
@@ -70,7 +104,9 @@ const Home: React.FC<HomeProps> = ({ isAdmin = false }) => {
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
                 className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap ${
-                  activeCategory === cat ? 'text-accent border-b-2 border-accent' : 'text-gray-300 hover:text-gray-500'
+                  activeCategory === cat
+                    ? 'text-accent border-b-2 border-accent'
+                    : 'text-gray-300 hover:text-gray-500'
                 }`}
               >
                 {cat}
@@ -79,23 +115,59 @@ const Home: React.FC<HomeProps> = ({ isAdmin = false }) => {
           </div>
         </div>
 
+        {/* 加载 & 错误状态 */}
+        {loading && (
+          <div className="py-20 text-center text-gray-400 text-sm">
+            正在从云端唤醒你的思绪...
+          </div>
+        )}
+
+        {error && !loading && (
+          <div className="py-20 text-center text-red-500 text-sm">
+            {error}
+          </div>
+        )}
+
         {/* Post Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-          {filteredPosts.map((post, idx) => (
-            <PostCard key={post.id} post={post} featured={idx === 0 && activeCategory === '全部'} />
-          ))}
-          {filteredPosts.length === 0 && (
-            <div className="col-span-full py-20 text-center">
-              <p className="text-gray-300 italic font-serif">这片花园里还没有此类授权通过的思绪。</p>
-            </div>
-          )}
-        </div>
+        {!loading && !error && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+            {filteredPosts.map((post, idx) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                featured={idx === 0 && activeCategory === '全部'}
+              />
+            ))}
+            {filteredPosts.length === 0 && (
+              <div className="col-span-full py-20 text-center">
+                <p className="text-gray-300 italic font-serif">
+                  这片花园里还没有此类授权通过的思绪。
+                </p>
+              </div>
+            )}
+          </div>
+        )}
         
         {/* Footer Link */}
         <div className="mt-24 text-center">
-          <Link to="/archive" className="inline-flex items-center space-x-3 px-10 py-4 glass rounded-full text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all duration-500">
+          <Link
+            to="/archive"
+            className="inline-flex items-center space-x-3 px-10 py-4 glass rounded-full text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-white transition-all duration-500"
+          >
             <span>浏览全部存档</span>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 8l4 4m0 0l-4 4m4-4H3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M17 8l4 4m0 0l-4 4m4-4H3"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </Link>
         </div>
       </div>
