@@ -4,7 +4,7 @@ import PostCard from '../components/PostCard';
 import WeatherWidget from '../components/WeatherWidget';
 import { CATEGORIES } from '../constants';
 import { Post } from '../types';
-import { storageService } from '../services/storage';
+import { getPostsFromFirebase } from '../services/firebaseService';  // 引入从 Firebase 获取数据的函数
 
 interface HomeProps {
   isAdmin?: boolean;
@@ -16,13 +16,13 @@ const Home: React.FC<HomeProps> = ({ isAdmin = false }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ⭐ 从云端（Supabase）拉文章列表
+  // ⭐ 从 Firebase 拉文章列表
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
         setError(null);
-        const posts = await storageService.getPosts();
+        const posts = await getPostsFromFirebase();  // 从 Firebase 获取数据
         setAllPosts(posts || []);
       } catch (e) {
         console.error(e);
