@@ -1,5 +1,5 @@
 {
-  "name": "pusen---个人数字花园",
+  "name": "pusen-个人数字花园",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,8 +13,7 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-router-dom": "^7.11.0",
-    "tailwindcss": "^4.1.18",
-    "next": "^16.1.1"
+    "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
