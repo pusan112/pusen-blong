@@ -1,5 +1,5 @@
 // src/AuthProvider.tsx
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import type { User, Session } from "@supabase/supabase-js";
 import { supabaseClient } from "./services/supabaseClient";
 
