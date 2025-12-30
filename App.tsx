@@ -56,7 +56,6 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<Home isAdmin={userRole === 'admin'} />} />
             <Route path="/moments" element={<Moments isAdmin={userRole === 'admin'} />} />
-            {/* 需要登录的路由 */}
             <Route path="/radio" element={isLoggedIn ? <Radio /> : <Navigate to="/login" />} />
             <Route path="/cinema" element={isLoggedIn ? <Cinema /> : <Navigate to="/login" />} />
             <Route path="/post/:id" element={<PostDetail />} />
@@ -75,10 +74,10 @@ const App: React.FC = () => {
           </Routes>
         </main>
         
-        < DanmakuOverlay />
+        <DanmakuOverlay />
         <MusicPlayer />
         <StickmanFollower />
-
+        
         <footer className="py-24 border-t border-gray-100/50">
           <div className="max-w-6xl mx-auto px-8 text-center space-y-10">
             <div className="flex flex-col items-center">
