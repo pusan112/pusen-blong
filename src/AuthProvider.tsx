@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
+// src/AuthProvider.tsx
+import React, { createContext, useContext, useState, ReactNode } from "react";
 import type { User, Session } from "@supabase/supabase-js";
 import { supabaseClient } from "./services/supabaseClient";
 
@@ -96,3 +97,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     signUp,
     signOut,
   };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+// 方便在组件里直接 useAuth()
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error("useAuth 必须在 <AuthProvider> 内部使用");
+  }
+  return ctx;
+};
