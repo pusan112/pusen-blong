@@ -1,7 +1,6 @@
 // services/gemini.ts
-import { blogService } from "./blogService";
+import { blogService } from "./ai-client";
 
-// 把 blogService 原样导出
-export * from "./blogService";
+export * from "./ai-client";
 export { blogService };
 export default blogService;
