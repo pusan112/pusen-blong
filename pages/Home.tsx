@@ -1,9 +1,9 @@
+// src/pages/Home.tsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PostCard from '../components/PostCard';
 import WeatherWidget from '../components/WeatherWidget';
 import { CATEGORIES } from '../constants';
-import { Post } from '../types';
 import { getPostsFromFirebase } from '../services/firebaseService';  // 引入从 Firebase 获取数据的函数
 
 interface HomeProps {
@@ -12,11 +12,11 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ isAdmin = false }) => {
   const [activeCategory, setActiveCategory] = useState('全部');
-  const [allPosts, setAllPosts] = useState<Post[]>([]);
+  const [allPosts, setAllPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ⭐ 从 Firebase 拉文章列表
+  // 从 Firebase 拉取文章列表
   useEffect(() => {
     (async () => {
       try {
