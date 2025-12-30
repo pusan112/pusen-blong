@@ -1,8 +1,8 @@
-// services/firebaseClient.ts
+// src/services/firebaseClient.ts
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
+// Firebase 配置（从 .env 文件中读取）
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -12,11 +12,7 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-if (!firebaseConfig.apiKey) {
-  console.warn("⚠️ Firebase 配置缺失，请检查 .env 中的 VITE_FIREBASE_* 变量");
-}
-
 const app = initializeApp(firebaseConfig);
 
-export const firebaseAuth = getAuth(app);
+// Firestore 初始化
 export const firestore = getFirestore(app);
