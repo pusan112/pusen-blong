@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { blogService } from '../services/gemini';
+import { blogService } from '../services/ai-client';
 import { storageService } from '../services/storage';
 import { Post } from '../types';
 
