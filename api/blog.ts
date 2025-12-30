@@ -1,11 +1,10 @@
 // api/blog.ts
-import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { GoogleGenAI, Type } from "@google/genai";
 
 // 只在后端读取环境变量
 const getAI = () => new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Only POST allowed" });
     return;
